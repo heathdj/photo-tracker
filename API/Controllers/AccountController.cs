@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
+ * File: /Users/heathdj/development/photo-tracker/API/Controllers/AccountController.cs
  * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * Created Date: Sunday, February 12th 2023, 10:45:54 am
  * Author: David Heath
  * -----
  * Last Modified: Sun Feb 12 2023
@@ -41,44 +41,84 @@
  * ----------	---	----------------------------------------------------------
  */
 
+
+using System.Security.Cryptography;
+using System.Text;
 using API.Data;
+using API.DTOs;
 using API.Entities;
-using Microsoft.AspNetCore.Authorization;
+using API.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    public class UsersController : BaseApiController
+    public class AccountController : BaseApiController
     {
         private readonly DataContext _context;
 
-        public UsersController(DataContext context)
+        private readonly ITokenService _tokenService;
+
+        public AccountController(DataContext context, ITokenService tokenService)
         {
+            _tokenService = tokenService;
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDTO>> Register(RegisterDTO dto)
         {
-            var users = await _context.Users.ToListAsync();
+            if (await UserExists(dto.Username)) return BadRequest("Username is taken");
+            using var hmac = new HMACSHA512();
 
-            return users;
+            var user = new AppUser
+            {
+                UserName = dto.Username.ToLower(),
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)),
+                PasswordSalt = hmac.Key
+            };
+
+            _context.Users.Add(user);
+
+            await _context.SaveChangesAsync();
+
+
+            return new UserDTO
+            {
+                UserName = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDTO>> Login(LoginDTO dto)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == dto.Username.ToLower());
 
-            if (user == null)
+            if (user == null) return Unauthorized();
+
+            using var hmac = new HMACSHA512(user.PasswordSalt);
+
+            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password));
+
+            for (int i = 0; i < hash.Length; i++)
             {
-                return NotFound();
+                if (hash[i] != user.PasswordHash[i]) return Unauthorized();
             }
 
-            return user;
+
+
+            return new UserDTO
+            {
+                UserName = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
+
+        }
+        private async Task<bool> UserExists(string username)
+        {
+            return await _context.Users.AnyAsync(x => x.UserName == username.ToLower());
         }
     }
-
 }
