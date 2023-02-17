@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
+ * File: /Users/heathdj/development/photo-tracker/API/Controllers/BaseApiController.cs
  * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * Created Date: Sunday, February 12th 2023, 10:40:36 am
  * Author: David Heath
  * -----
  * Last Modified: Sun Feb 12 2023
@@ -41,44 +41,14 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    public class UsersController : BaseApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BaseApiController : ControllerBase
     {
-        private readonly DataContext _context;
 
-        public UsersController(DataContext context)
-        {
-            _context = context;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
-        {
-            var users = await _context.Users.ToListAsync();
-
-            return users;
-        }
-
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
     }
-
 }

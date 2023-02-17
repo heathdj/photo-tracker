@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Services/TokenService.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Services
+ * Created Date: Sunday, February 12th 2023, 3:35:08 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Feb 12 2023
@@ -41,44 +41,46 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
+
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using API.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using API.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
-namespace API.Controllers
+namespace API.Services
 {
-    public class UsersController : BaseApiController
+    public class TokenService : ITokenService
     {
-        private readonly DataContext _context;
 
-        public UsersController(DataContext context)
+        private readonly SymmetricSecurityKey _key;
+
+        public TokenService(IConfiguration config)
         {
-            _context = context;
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
         }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public string CreateToken(AppUser user)
         {
-            var users = await _context.Users.ToListAsync();
-
-            return users;
-        }
-
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
+            var claims = new List<Claim>
             {
-                return NotFound();
-            }
+                new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+            };
 
-            return user;
+            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+
+            var tokenDesciptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(7),
+                SigningCredentials = creds
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.CreateToken(tokenDesciptor);
+
+            return tokenHandler.WriteToken(token);
         }
     }
-
 }

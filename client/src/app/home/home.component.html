@@ -1,0 +1,18 @@
+<div class="container" style='margin-top: 100px;'>
+    <div style='text-align: center;' *ngIf='!registerMode'>
+        <h1>Track Your Photo's</h1>
+        <p class="lead">Track Your Photo's and Locations around the world. Find new places to take Photo's. Follow your
+            friends as they post their photo's and get inspried to take more photos.'</p>
+        <div class="text-center">
+            <button class="btn btn-primary btn-lrg me-2" (click)="registerToggle()">Register</button>
+            <button class="btn btn-primary btn-info btn-lrg ">Learn More...</button>
+        </div>
+    </div>
+    <div class="container" *ngIf="registerMode">
+        <div class="row justify-content-center">
+            <div class="col-4">
+                <app-register (cancelRegister)="cancelRegisterMode($event)"></app-register>
+            </div>
+        </div>
+    </div>
+</div>

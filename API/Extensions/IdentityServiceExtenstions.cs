@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Extensions/IdentityServiceExtenstions.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Extensions
+ * Created Date: Sunday, February 12th 2023, 8:19:07 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Feb 12 2023
@@ -41,44 +41,32 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+namespace API.Extensions
 {
-    public class UsersController : BaseApiController
+    public static class IdentityServiceExtenstions
     {
-        private readonly DataContext _context;
-
-        public UsersController(DataContext context)
+        public static IServiceCollection AddIdentityServices(this IServiceCollection services,
+            IConfiguration config)
         {
-            _context = context;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            var users = await _context.Users.ToListAsync();
-
-            return users;
-        }
-
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                return NotFound();
-            }
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding
+                    .UTF8.GetBytes(config["TokenKey"])),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
 
-            return user;
+            return services;
         }
     }
-
 }

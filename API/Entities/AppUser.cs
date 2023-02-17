@@ -4,7 +4,7 @@
  * Created Date: Thursday, February 9th 2023, 11:32:24 am
  * Author: David Heath
  * -----
- * Last Modified: Thu Feb 09 2023
+ * Last Modified: Sun Feb 12 2023
  * Modified By: David Heath
  * -----
  * Copyright (c) 2023 BaldTraveler
@@ -46,5 +46,9 @@ namespace API.Entities
     {
         public int Id { get; set; }
         public string UserName { get; set; }
+
+        public byte[] PasswordHash { get; set; }
+
+        public byte[] PasswordSalt { get; set; }
     }
 }

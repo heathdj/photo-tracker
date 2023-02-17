@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/DTOs/RegisterDTO.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/DTOs
+ * Created Date: Sunday, February 12th 2023, 2:43:03 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Feb 12 2023
@@ -41,44 +41,17 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+using System.ComponentModel.DataAnnotations;
+
+namespace API.DTOs
 {
-    public class UsersController : BaseApiController
+    public class RegisterDTO
     {
-        private readonly DataContext _context;
+        [Required]
+        public String Username { get; set; }
 
-        public UsersController(DataContext context)
-        {
-            _context = context;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
-        {
-            var users = await _context.Users.ToListAsync();
-
-            return users;
-        }
-
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
+        [Required]
+        public String Password { get; set; }
     }
-
 }
