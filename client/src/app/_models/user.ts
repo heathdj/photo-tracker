@@ -4,7 +4,7 @@
  * Created Date: Tuesday, February 14th 2023, 4:38:44 pm
  * Author: David Heath
  * -----
- * Last Modified: Tue Feb 14 2023
+ * Last Modified: Mon Feb 20 2023
  * Modified By: David Heath
  * -----
  * Copyright (c) 2023 BaldTraveler
@@ -13,6 +13,6 @@
  */
 
 export interface User {
-  username: string;
+  userName: string;
   token: string;
 }
