@@ -24,10 +24,6 @@ export class NavComponent implements OnInit {
   login() {
     this.accountService.login(this.model).subscribe({
       next: (_) => this.router.navigateByUrl('/members'),
-      error: (error) =>
-        this.toaster.error(
-          'Username or Password is incorrect. Please check and try again.'
-        ),
     });
   }
 
