@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Interfaces/IUserRepository.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Interfaces
+ * Created Date: Sunday, March 5th 2023, 7:31:06 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Mar 05 2023
@@ -41,53 +41,27 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
+
+using System.Collections;
 using API.DTOs;
 using API.Entities;
-using API.Interfaces;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+namespace API.Interfaces
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    public interface IUserRepository
     {
+        void Update(AppUser user);
 
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
+        Task<bool> SaveAllAsync();
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
-        {
-            _mapper = mapper;
-            _userRepository = userRepository;
+        Task<IEnumerable<AppUser>> GetUsersAsync();
 
-        }
+        Task<AppUser> GetUserByIdAsync(int id);
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
-        {
+        Task<AppUser> GetUserByUsernameAsync(string userName);
 
-            var users = await _userRepository.GetMembersAsync();
+        Task<IEnumerable<MemberDto>> GetMembersAsync();
 
-            return Ok(users);
-
-        }
-
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
-        {
-            var user = await _userRepository.GetMemberAsync(username);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
+        Task<MemberDto> GetMemberAsync(string userName);
     }
-
 }

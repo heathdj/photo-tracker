@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Helpers/AutoMapperProfiles.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Helpers
+ * Created Date: Sunday, March 5th 2023, 8:02:34 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Mar 05 2023
@@ -41,53 +41,25 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
+
 using API.DTOs;
 using API.Entities;
-using API.Interfaces;
+using API.Extensions;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 
-namespace API.Controllers
+namespace API.Helpers
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    public class AutoMapperProfiles : Profile
     {
-
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public AutoMapperProfiles()
         {
-            _mapper = mapper;
-            _userRepository = userRepository;
-
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
-        {
-
-            var users = await _userRepository.GetMembersAsync();
-
-            return Ok(users);
-
-        }
-
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
-        {
-            var user = await _userRepository.GetMemberAsync(username);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
+            CreateMap<AppUser, MemberDto>()
+                .ForMember(dest => dest.PhotoUrl,
+                    opt => opt.MapFrom(src => src.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge()));
+            CreateMap<Photo, PhotoDto>();
         }
     }
-
 }

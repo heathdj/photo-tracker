@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Data/Seed.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Data
+ * Created Date: Sunday, March 5th 2023, 12:46:24 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Mar 05 2023
@@ -41,53 +41,38 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.DTOs;
+
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using API.Entities;
-using API.Interfaces;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+namespace API.Data
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    public class Seed
     {
-
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public static async Task SeedUsers(DataContext context)
         {
-            _mapper = mapper;
-            _userRepository = userRepository;
+            if (await context.Users.AnyAsync()) return;
 
-        }
+            var userData = await File.ReadAllTextAsync("Data/UserSeedData.json");
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
-        {
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-            var users = await _userRepository.GetMembersAsync();
+            var users = JsonSerializer.Deserialize<List<AppUser>>(userData);
 
-            return Ok(users);
-
-        }
-
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
-        {
-            var user = await _userRepository.GetMemberAsync(username);
-
-            if (user == null)
+            foreach (var user in users)
             {
-                return NotFound();
-            }
+                using var hmac = new HMACSHA512();
 
-            return user;
+                user.UserName = user.UserName.ToLower();
+                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd"));
+                user.PasswordSalt = hmac.Key;
+
+                context.Users.Add(user);
+            }
+            await context.SaveChangesAsync();
         }
     }
-
 }

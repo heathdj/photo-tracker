@@ -1,10 +1,10 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Extensions/DateTimeExtension.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Extensions
+ * Created Date: Saturday, March 4th 2023, 9:38:41 pm
  * Author: David Heath
  * -----
- * Last Modified: Sun Mar 05 2023
+ * Last Modified: Sat Mar 04 2023
  * Modified By: David Heath
  * -----
  * Copyright (c) 2023 BaldTraveler
@@ -41,53 +41,20 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.DTOs;
-using API.Entities;
-using API.Interfaces;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+namespace API.Extensions
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    public static class DateTimeExtension
     {
-
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public static int CalculateAge(this DateOnly dob)
         {
-            _mapper = mapper;
-            _userRepository = userRepository;
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        }
+            var age = today.Year - dob.Year;
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
-        {
+            if (dob > today.AddYears(-age)) age--;
 
-            var users = await _userRepository.GetMembersAsync();
-
-            return Ok(users);
-
-        }
-
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
-        {
-            var user = await _userRepository.GetMemberAsync(username);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
+            return age;
         }
     }
-
 }

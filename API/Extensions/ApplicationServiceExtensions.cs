@@ -4,7 +4,7 @@
  * Created Date: Sunday, February 12th 2023, 8:12:43 pm
  * Author: David Heath
  * -----
- * Last Modified: Sun Feb 12 2023
+ * Last Modified: Sun Mar 05 2023
  * Modified By: David Heath
  * -----
  * Copyright (c) 2023 BaldTraveler
@@ -61,6 +61,8 @@ namespace API.Extensions
             });
             services.AddCors();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             return services;
 
