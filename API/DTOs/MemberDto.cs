@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/DTOs/MemberDto.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/DTOs
+ * Created Date: Sunday, March 5th 2023, 7:56:12 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Mar 05 2023
@@ -41,53 +41,35 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.DTOs;
-using API.Entities;
-using API.Interfaces;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+namespace API.DTOs
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    public class MemberDto
     {
+        public int Id { get; set; }
+        public string UserName { get; set; }
 
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
+        public string PhotoUrl { get; set; }
+        public int Age { get; set; }
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
-        {
-            _mapper = mapper;
-            _userRepository = userRepository;
+        public string KnownAs { get; set; }
 
-        }
+        public DateTime Created { get; set; }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
-        {
+        public DateTime LastActive { get; set; }
 
-            var users = await _userRepository.GetMembersAsync();
+        public string Gender { get; set; }
 
-            return Ok(users);
+        public string Introduction { get; set; }
 
-        }
+        public string LookingFor { get; set; }
 
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
-        {
-            var user = await _userRepository.GetMemberAsync(username);
+        public string Interests { get; set; }
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+        public string City { get; set; }
 
-            return user;
-        }
+        public string Country { get; set; }
+
+        public List<PhotoDto> Photos { get; set; }
     }
-
 }

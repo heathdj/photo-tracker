@@ -1,15 +1,13 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Entities/AppUser.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Entities
+ * Created Date: Thursday, February 9th 2023, 11:32:24 am
  * Author: David Heath
  * -----
- * Last Modified: Sun Mar 05 2023
+ * Last Modified: Sat Mar 04 2023
  * Modified By: David Heath
  * -----
  * Copyright (c) 2023 BaldTraveler
- * 
- * Copyright (c) 2023 BaldTraveler. 
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,53 +39,20 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
-using API.DTOs;
-using API.Entities;
-using API.Interfaces;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace API.Entities
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    [Table("Photos")]
+    public class Photo
     {
+        public int Id { get; set; }
+        public string Url { get; set; }
+        public bool IsMain { get; set; }
+        public string PublicId { get; set; }
 
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-
-        public UsersController(IUserRepository userRepository, IMapper mapper)
-        {
-            _mapper = mapper;
-            _userRepository = userRepository;
-
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
-        {
-
-            var users = await _userRepository.GetMembersAsync();
-
-            return Ok(users);
-
-        }
-
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
-        {
-            var user = await _userRepository.GetMemberAsync(username);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
+        public int AppUserId { get; set; }
+        public AppUser AppUser { get; set; }
     }
-
 }

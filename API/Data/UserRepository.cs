@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Controllers/UsersController.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Controllers
- * Created Date: Friday, February 10th 2023, 8:28:00 pm
+ * File: /Users/heathdj/development/photo-tracker/API/Data/UerRepository.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/Data
+ * Created Date: Sunday, March 5th 2023, 7:34:08 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Mar 05 2023
@@ -41,53 +41,70 @@
  * ----------	---	----------------------------------------------------------
  */
 
-using API.Data;
+
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+namespace API.Data
 {
-    [Authorize]
-    public class UsersController : BaseApiController
+    public class UserRepository : IUserRepository
     {
-
-        private readonly IUserRepository _userRepository;
+        private readonly DataContext _context;
         private readonly IMapper _mapper;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public UserRepository(DataContext context, IMapper mapper)
         {
             _mapper = mapper;
-            _userRepository = userRepository;
+            _context = context;
 
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+        public async Task<MemberDto> GetMemberAsync(string userName)
         {
-
-            var users = await _userRepository.GetMembersAsync();
-
-            return Ok(users);
-
+            return await _context.Users
+                .Where(x => x.UserName == userName)
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync();
         }
 
-        [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string username)
+        public async Task<IEnumerable<MemberDto>> GetMembersAsync()
         {
-            var user = await _userRepository.GetMemberAsync(username);
+            return await _context.Users
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+        }
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+        public async Task<AppUser> GetUserByIdAsync(int id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
 
-            return user;
+        public async Task<AppUser> GetUserByUsernameAsync(string userName)
+        {
+            return await _context.Users
+            .Include(p => p.Photos)
+            .SingleOrDefaultAsync(x => x.UserName == userName);
+        }
+
+        public async Task<IEnumerable<AppUser>> GetUsersAsync()
+        {
+            return await _context.Users
+                .Include(p => p.Photos)
+                .ToListAsync();
+        }
+
+        public async Task<bool> SaveAllAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public void Update(AppUser user)
+        {
+            _context.Entry(user).State = EntityState.Modified;
         }
     }
-
 }
