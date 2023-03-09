@@ -21,7 +21,7 @@ const routes: Routes = [
         component: MemberListComponent,
       },
       {
-        path: 'members/:id',
+        path: 'members/:username',
         component: MemberDetailComponent,
       },
       { path: 'messages', component: MessagesComponent },
