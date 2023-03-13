@@ -1,7 +1,7 @@
 /*
- * File: /Users/heathdj/development/photo-tracker/API/Helpers/AutoMapperProfiles.cs
- * Project: /Users/heathdj/development/photo-tracker/API/Helpers
- * Created Date: Sunday, March 5th 2023, 8:02:34 pm
+ * File: /Users/heathdj/development/photo-tracker/API/DTOs/MemberUpdateDto.cs
+ * Project: /Users/heathdj/development/photo-tracker/API/DTOs
+ * Created Date: Sunday, March 12th 2023, 9:27:32 pm
  * Author: David Heath
  * -----
  * Last Modified: Sun Mar 12 2023
@@ -42,25 +42,14 @@
  */
 
 
-using API.DTOs;
-using API.Entities;
-using API.Extensions;
-using AutoMapper;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-
-namespace API.Helpers
+namespace API.DTOs
 {
-    public class AutoMapperProfiles : Profile
+    public class MemberUpdateDto
     {
-        public AutoMapperProfiles()
-        {
-            CreateMap<AppUser, MemberDto>()
-                .ForMember(dest => dest.PhotoUrl,
-                    opt => opt.MapFrom(src => src.Photos.FirstOrDefault(x => x.IsMain).Url))
-                .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge()));
-            CreateMap<Photo, PhotoDto>();
-            CreateMap<MemberUpdateDto, AppUser>();
-        }
+        public string Introduction { get; set; }
+        public string LookingFor { get; set; }
+        public string Interests { get; set; }
+        public string City { get; set; }
+        public string Country { get; set; }
     }
 }

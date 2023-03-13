@@ -1,3 +1,5 @@
+import { PreventUnsavedChangesGuard } from './_gaurds/prevent-unsaved-changes.guard';
+import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
 import { ListsComponent } from './lists/lists.component';
 import { MemberDetailComponent } from './members/member-detail/member-detail.component';
@@ -23,6 +25,11 @@ const routes: Routes = [
       {
         path: 'members/:username',
         component: MemberDetailComponent,
+      },
+      {
+        path: 'member/edit',
+        component: MemberEditComponent,
+        canDeactivate: [PreventUnsavedChangesGuard],
       },
       { path: 'messages', component: MessagesComponent },
       { path: 'lists', component: ListsComponent },

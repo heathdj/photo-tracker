@@ -4,7 +4,7 @@
  * Created Date: Friday, February 10th 2023, 8:28:00 pm
  * Author: David Heath
  * -----
- * Last Modified: Sun Mar 05 2023
+ * Last Modified: Sun Mar 12 2023
  * Modified By: David Heath
  * -----
  * Copyright (c) 2023 BaldTraveler
@@ -41,6 +41,7 @@
  * ----------	---	----------------------------------------------------------
  */
 
+using System.Security.Claims;
 using API.DTOs;
 using API.Interfaces;
 using AutoMapper;
@@ -84,6 +85,20 @@ namespace API.Controllers
             }
 
             return user;
+        }
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+
+            if (user == null) return NotFound();
+
+            _mapper.Map(memberUpdateDto, user);
+
+            if (await _userRepository.SaveAllAsync()) return NoContent();
+
+            return BadRequest("Failed to update user");
         }
     }
 
